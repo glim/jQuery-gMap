@@ -58,8 +58,33 @@
                     // Check for a marker to center on (if no coordinates given)
                     if ($.isArray(opts.markers) && opts.markers.length > 0)
                     {
+                        $gmap.setCenter(new google.maps.LatLng(34.885931, 9.84375));
+                    	
+                    	/*var bounds = new google.maps.LatLngBounds();
+                    	for (var i = 0, LtLgLen = opts.markers.length; i < LtLgLen; i++) {                    		
+						  //  And increase the bounds to take this point
+						  if (opts.markers[i].address)
+						  {
+                            $geocoder.geocode(
+                                {
+                                    address: opts.markers[i].address
+                                }, function(num)
+                                {
+                                	return function (gresult,status) {
+	                                    if(gresult && gresult.length > 0)
+	                                        bounds.extend(gresult[0].geometry.location);
+	                                    if (num == LtLgLen -1)
+	                        				setTimeout(function(){$gmap.fitBounds(bounds);},500);
+                        			};
+                                }(i)
+                            );						  	
+						  }
+						  
+						}*/
+						
+                    	
                         // Check if the marker has an address
-                        if (opts.markers[0].address)
+                        /*if (opts.markers[0].address)
                         {
                             // Get the coordinates for given marker address and center
                             $geocoder.geocode(
@@ -74,7 +99,7 @@
                         }else{
                             // Center the map to coordinates given by marker
                             $gmap.setCenter(new google.maps.LatLng(opts.markers[0].latitude, opts.markers[0].longitude));
-                        }
+                        }*/
                     }else{
                         // Revert back to world view
                         $gmap.setCenter(new google.maps.LatLng(34.885931, 9.84375));
@@ -137,7 +162,6 @@
             var last_infowindow;
             $(this).bind('gMap.addMarker', function(e, latitude, longitude, content, icon, popup,animation)
             {
-                console.log(animation);
                 var glatlng = new google.maps.LatLng(parseFloat(latitude), parseFloat(longitude));
 
                 var gmarker = new google.maps.Marker({
@@ -194,6 +218,8 @@
             });
             
             // Loop through marker array
+            var bounds = new google.maps.LatLngBounds();
+            
             for (var j = 0; j < opts.markers.length; j++)
             {
                 // Get the options from current marker
@@ -208,18 +234,23 @@
                     
                     // Get the point for given address
                     var $this = this;
+                    
                     $geocoder.geocode({
                         address: marker.address
-                    }, (function(marker, $this){
+                    }, (function(marker, $this,num){
                         return function(gresult, status)
                         {
                             // Create marker
                             if(gresult && gresult.length > 0)
                             {
-                                $($this).trigger('gMap.addMarker', [gresult[0].geometry.location.lat(), gresult[0].geometry.location.lng(), marker.html, marker.icon, marker.popup, marker.animation]);
+                            	bounds.extend(gresult[0].geometry.location);
+                            	setTimeout(function() {$($this).trigger('gMap.addMarker', [gresult[0].geometry.location.lat(), gresult[0].geometry.location.lng(), marker.html, marker.icon, marker.popup, marker.animation]);},(num+1)*opts.sequential_marker_delay);
+                                
                             }
+                            if (num == opts.markers.length -1)
+                				setTimeout(function(){$gmap.fitBounds(bounds);},(num+2)*opts.sequential_marker_delay);
                         };
-                    })(marker, $this)
+                    })(marker, $this,j)
                     );
                 }else{
                     $(this).trigger('gMap.addMarker', [marker.latitude, marker.longitude, marker.html, marker.icon, marker.popup, marker.animation]);
@@ -239,6 +270,7 @@
         controls: [],
         scrollwheel: false,
         doubleclickzoom: true,
+        sequential_marker_delay: 500,
         maptype: 'ROADMAP',
         html_prepend: '<div class="gmap_marker">',
         html_append: '</div>',

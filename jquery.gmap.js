@@ -102,8 +102,10 @@
 			
 			// Set icon properties from global options
 			marker_icon = new google.maps.MarkerImage(opts.icon.image);
-			marker_icon.size = new google.maps.Size(opts.icon.iconsize[0], opts.icon.iconsize[1]);
-			marker_icon.anchor = new google.maps.Point(opts.icon.iconanchor[0], opts.icon.iconanchor[1]);
+			if (opts.icon.iconsize)
+				marker_icon.size = new google.maps.Size(opts.icon.iconsize[0], opts.icon.iconsize[1]);
+			if (opts.icon.anchor)
+				marker_icon.anchor = new google.maps.Point(opts.icon.iconanchor[0], opts.icon.iconanchor[1]);
 			gicon.setIcon(marker_icon);
 			
 			if(opts.icon.shadow)

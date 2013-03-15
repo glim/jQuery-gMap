@@ -58,7 +58,8 @@
                     // Check for a marker to center on (if no coordinates given)
                     if ($.isArray(opts.markers) && opts.markers.length > 0)
                     {
-                        $gmap.setCenter(new google.maps.LatLng(34.885931, 9.84375));
+                        
+                    	$gmap.setCenter(new google.maps.LatLng(34.885931, 9.84375));
                     	
                     	/*var bounds = new google.maps.LatLngBounds();
                     	for (var i = 0, LtLgLen = opts.markers.length; i < LtLgLen; i++) {                    		
@@ -247,8 +248,14 @@
                             	setTimeout(function() {$($this).trigger('gMap.addMarker', [gresult[0].geometry.location.lat(), gresult[0].geometry.location.lng(), marker.html, marker.icon, marker.popup, marker.animation]);},(num+1)*opts.sequential_marker_delay);
                                 
                             }
-                            if (num == opts.markers.length -1)
-                				setTimeout(function(){$gmap.fitBounds(bounds);},(num+2)*opts.sequential_marker_delay);
+                            if (opts.markers.length < 2)
+                				$gmap.setCenter(gresult[0].geometry.location);
+                			else
+                				if(num == opts.markers.length -1)
+                				{
+                					console.log('blah');
+                					setTimeout(function(){$gmap.fitBounds(bounds);},(num+2)*opts.sequential_marker_delay);
+                				}                				
                         };
                     })(marker, $this,j)
                     );
